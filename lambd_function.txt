@@ -1,0 +1,134 @@
+import os
+import boto3
+from botocore.exceptions import ClientError
+import logging
+import pandas as pd
+
+s3_client = boto3.client('s3')
+
+def lambda_handler(event, context):
+    ACCESS_KEY = os.environ['ACCESS_KEY']
+    SECRET_ACCESS_KEY = os.environ['SECRET_ACCESS_KEY']
+    
+    bucket_name = 'capstone-project-team2'
+    object_name = 'lol_champion_stats_en.csv'
+    file_path = '/tmp/lol_champion_stats_en.csv'
+    # Download file from S3 bucket
+    try:
+        s3_client.download_file(bucket_name, object_name, file_path)
+        print(f'Successfully downloaded {object_name}')
+    except ClientError as e:
+        logging.error(e)
+        return False
+        
+        
+    #Data cleaning
+    df1 = pd.read_csv(file_path,encoding='ISO-8859-1', delimiter=';')
+    
+    #renaming the columns
+    df1 = df1.rename(columns={'ressource': 'resource'})
+    # renaming column
+    df1 = df1.rename(columns={'champion_name': 'champ_name'}) 
+    
+    #Changing date release to date datatype
+    df1['date_release']= pd.to_datetime(df1['date_release'])
+    
+    # Converting columns to double
+    cols = cols = ['HP', 'HP+', 'HP_lvl18', 'HP5', 'HP5+', 'HP5_lvl18', 'MP', 'MP+', 'MP_lvl18', 'MP5', 'MP5+', 'MP5_lvl18', 'AD', 'AD+', 'AD_lvl18', 'AS', 'AS_lvl18', 'AR', 'AR+', 'AR_lvl18', 'MR', 'MR+', 'MR_lvl18', 'MS', 'MS_lvl18', 'range', 'range_lvl18']
+    for col_name in cols:
+        df1[col_name] = df1[col_name].astype("float")
+    
+    
+    # Displaying table
+    df1.info()
+    df1.head()  
+    
+    #temp csv
+    df1.to_csv('/tmp/champions.csv')
+    
+    # Upload file to S3 bucket
+    bucket_name1 = 'upload-bucket-league-of-legends'
+    object_name1 = 'champions.csv'
+    file_path1 = '/tmp/champions.csv'
+    print(df1)
+    
+    try:
+        s3_client.upload_file(file_path1, bucket_name1, object_name1)
+        print(f'Successfully uploaded {object_name} to {bucket_name1}')
+    except ClientError as e:
+        logging.error(e)
+        return False
+    return True
+
+
+
+
+    ----------------------------------------------------------------------------------
+        APPEND DATA
+    ------------------------------------------------------------------------------------
+import json
+import boto3
+import csv
+
+def lambda_handler(event, context):
+
+    data = event["body"]["data"]
+    file_name = 'dummy_data.csv'
+    
+    s3_client = boto3.client("s3")
+    s3_client.download_file('capstone-project-team2', file_name, F"/tmp/{file_name}")
+    field_names = list(data[0].keys())
+    
+    with open(F"/tmp/{file_name}", 'a') as file:
+        dict_object = csv.DictWriter(file, fieldnames=field_names)
+        for champ in data:
+            dict_object.writerow(champ)
+    
+    s3_client.upload_file(F"/tmp/{file_name}", "capstone-project-team2", file_name)
+    
+    return {
+        'statusCode': 200,
+        'body': json.dumps('lmao')
+    }
+
+
+ ----------------------------------------------------------------------------------
+        UPLOADS TO RDS
+------------------------------------------------------------------------------------
+
+import json
+import boto3
+import numpy as np
+import pandas as pd
+import pymysql
+from sqlalchemy import create_engine
+
+def lambda_handler(event, context):
+    db_uri = F"mysql+pymysql://admin:SomethingGreat22@lol-stat-database.clkvfbp0ta4r.us-east-1.rds.amazonaws.com:3306/leagueDB"
+    s3_client = boto3.client('s3')
+    engine = create_engine(db_uri)
+    
+    res = s3_client.get_object(Bucket='capstone-project-team2', Key='league_of_legends_champion_stats.csv')
+    res_1 = s3_client.get_object(Bucket='capstone-project-team2', Key='builds_counters.csv')
+    
+    stats_df = pd.read_csv(res['Body'], delimiter=',')
+    
+    build_counters_df = pd.read_csv(res_1['Body'])
+    
+    stats_df = stats_df.groupby('Name').first().reset_index()
+    temp_df = build_counters_df.merge(stats_df, left_on='champion', right_on='Name')
+    champions = temp_df[["patch_version", 'champion', 'Class', 'Tier', 'Role', 'starter_item', 'first_item', 'second_item', 'counter_one', 'counter_two', 'Score', 'Trend', 'Win %', 'Role %', 'Pick %', 'Ban %']]
+    champions = champions.rename(columns={'champion': 'champ_name', 'Class': 'class', 'Tier': 'tier', 'Score': 'score', 'Trend': 'trend', 'Role': 'role',
+                          'Win %': 'win_percentage', 'Role %': 'role_percentage', 'Pick %' : 'pick_percentage', 'Ban %': 'ban_percentage'})
+
+    champions['win_percentage'] = np.round(champions['win_percentage'].str.rstrip('%').astype(float)/100.0, 2)
+    champions['role_percentage'] = np.round(champions['role_percentage'].str.rstrip('%').astype(float)/100.0, 2)
+    champions['pick_percentage'] = np.round(champions['pick_percentage'].str.rstrip('%').astype(float)/100.0, 2)
+    champions['ban_percentage'] = np.round(champions['ban_percentage'].str.rstrip('%').astype(float)/100.0, 2)
+    
+    champions.to_sql('champions', con=engine, if_exists='append', index=False)
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Success')
+    }
