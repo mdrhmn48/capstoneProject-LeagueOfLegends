@@ -4,7 +4,7 @@
 
 Interactive Dashboard link: 
         
-        https://public.tableau.com/app/profile/md.rahman5916/viz/captone_project2/Dashboard22
+https://public.tableau.com/app/profile/md.rahman5916/viz/captone_project2/Dashboard22
 
 # Spark Data Processing with S3 Integration
 
