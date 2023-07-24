@@ -1,4 +1,7 @@
-Tableu Visualization: 
+Tableau Visualization: 
+
+![Tableau Dashboard](https://github.com/mdrhmn48/capstoneProject-LeagueOfLegends/blob/master/Screenshot_20230310_095823.png)
+link: 
         
         https://public.tableau.com/app/profile/md.rahman5916/viz/captone_project2/Dashboard22
 
