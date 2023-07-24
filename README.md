@@ -16,7 +16,9 @@ Setup
 
 Usage
     1. Open the Python script and make sure to provide the correct S3 bucket name (bucket) and file names (file1, file2) as required.
-    2. Install the necessary Python packages if you haven't already: pip install pyspark boto3.
+    2. Install the necessary Python packages if you haven't already: 
+
+        pip install pyspark boto3.
 
         Run the script: python spark_data_processing.py
 
