@@ -1,3 +1,7 @@
+Tableu Visualization: 
+        
+        https://public.tableau.com/app/profile/md.rahman5916/viz/captone_project2/Dashboard22
+
 Spark Data Processing with S3 Integration
 
 This repository contains a Python script for data processing with Apache Spark and integration with Amazon S3. The script reads CSV files from an S3 bucket, performs data transformations, and showcases Spark's capabilities for data analysis. The primary purpose of this script is to process data related to League of Legends (LoL) items and champion statistics.
@@ -20,5 +24,16 @@ Usage
 
         pip install pyspark boto3.
 
-        Run the script: python spark_data_processing.py
+        Run the script: python data_cleaning.py
+The script will perform the following tasks:
+    1. Create a SparkSession to initiate the Spark context.
+    2. Connect to the specified S3 bucket using the provided credentials.
+    3. Download two CSV files (LOL_items_stats.csv and lol_champion_stats_en.csv) from the S3 bucket to the local machine or server.
+    4. Read the CSV files into Spark DataFrames (df1 and df2).
+    5. Perform data transformations on df1 to change specific columns' data types to float, make the "Item" column primary key (nullable=false), and replace null values in the "Maps" column with "Unknown".
+    6. Display the schema and data of df1.
 
+Note: The script contains some incomplete code for processing df2. Please update it according to your specific data processing needs for the "champion_name" column.
+Contributors
+
+    Your Name: MD Rahman
