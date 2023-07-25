@@ -29,7 +29,9 @@ Before running the script, ensure you have the following components installed:
 
         pip install pyspark boto3.
 
-        Run the script: python data_cleaning.py
+    ## Run the script:
+
+            python data_cleaning.py
 # The script will perform the following tasks:
     1. Create a SparkSession to initiate the Spark context.
     2. Connect to the specified S3 bucket using the provided credentials.
