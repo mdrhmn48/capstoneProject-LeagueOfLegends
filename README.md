@@ -40,4 +40,4 @@ Before running the script, ensure you have the following components installed:
 Note: The script contains some incomplete code for processing df2. Please update it according to your specific data processing needs for the "champion_name" column.
 # Contributors:
 
-    Your Name: MD Rahman
+    Your Name: MD Rahman, Elan Locke, Jose Heras
