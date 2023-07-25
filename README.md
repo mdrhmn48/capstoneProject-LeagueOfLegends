@@ -9,7 +9,8 @@ https://public.tableau.com/app/profile/md.rahman5916/viz/captone_project2/Dashbo
 # Spark Data Processing with S3 Integration
 
 This repository contains a Python script for data processing with Apache Spark and integration with Amazon S3. The script reads CSV files from an S3 bucket, performs data transformations, and showcases Spark's capabilities for data analysis. The primary purpose of this script is to process data related to League of Legends (LoL) items and champion statistics.
-Prerequisites
+
+## Prerequisites
 
 Before running the script, ensure you have the following components installed:
         1. Python (version 3.6 or higher)
